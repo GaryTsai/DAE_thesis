@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" href="/static/ico/favicon.ico">
+  <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+  <title>電力小柴犬-用電型態及數據視覺化呈現</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+  <link href="{{ url_for('static', filename='css/style.default.css') }}" id="theme-stylesheet" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/grasp_mobile_progress_circle-1.0.0.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet">
+  <!--<link rel="shortcut icon" href=="{{ url_for('static', filename='img/favicon.ico ') }}" type="image/x-icon" rel="stylesheet">-->
+  <script src="https://use.fontawesome.com/99347ac47f.js"></script>
+  <link href="https://file.myfontastic.com/da58YPMQ7U5HY8Rb6UxkNf/icons.css" rel="stylesheet">
+  <script src="/static/sweetalert/dist/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/sweetalert/dist/sweetalert.css">
+  <script src="{{ url_for('static', filename='js/amchart/amcharts.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/amchart/serial.js') }}"></script>
+  <script src="https://www.amcharts.com/lib/3/gauge.js"></script>
+  <script src="{{ url_for('static', filename='js/amchart/light.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/lvami/diagram.js') }}"></script>
+  <!--<script src="/static/sweetalert2/sweetalert2.common.js"></script>-->
+  <link href="/static/sweetalert2/sweetalert2.css" rel="stylesheet">
+  <script src="/static/sweetalert2/sweetalert2.js"></script>
+
+
+  <!-- Tweaks for older IEs-->
+  <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+  <script type="Javascript">
+    <!-- $('#myTab a').click(function (e) { if ($(this).parent('li').hasClass('active')) { $($(this).attr('href')).hide(); } else
+    { e.preventDefault(); $(this).tab('show'); } }); -->
+  </script>
+</head>
+
+
+<body>
+  <!-- Side Navbar -->
+  <nav class="side-navbar" style="overflow: hidden; outline: none;" tabindex="0">
+    <div class="side-navbar-wrapper">
+      <div class="sidenav-header d-flex align-items-center justify-content-center">
+        <div class="sidenav-header-inner text-center"><img src='' alt="person" id="user_img" class="img-fluid rounded-circle">
+          <h2 id="user_id" class="h5 text-uppercase">{{gateway_name}}</h2><span class="text-uppercase">用電資訊</span>
+          <input id="gateway_uid" value="{{gateway_uid}}" style="display:none">
+          <input id="authority" value="{{authority}}" style="display:none">
+          <input id="session_user_name" value="{{session_user_name}}" style="display:none">
+        </div>
+        <div class="sidenav-header-logo">
+          <a href="client_page" class="brand-small text-center"> <strong>K</strong><strong class="text-primary">D</strong><strong class="text-primary">D</strong></a>
+        </div>
+      </div>
+      <div class="main-menu">
+        <ul id="side-main-menu" class="side-menu list-unstyled">
+          <li>
+            <a href="client_page"><i class="fa fa-line-chart"></i><span>我的即時用電資訊</span></a>
+          </li>
+          <li class="active">
+            <a href="client_tables"><i class="fa fa-check"></i><span>用電行為體檢</span></a>
+          </li>
+          <!--<li> <a href="client_forms"><i class="fa fa-thermometer-empty"></i><span>體感溫度與我的用電</span></a></li>-->
+          <!--<li> <a href="client_charts"><i class="icon-presentation"></i><span>我的用電情況</span></a></li>-->
+          <li>
+            <!--<a href="client_power"><i class="icon-presentation"></i><span> 一週備轉容量</span></a>-->
+          </li>
+
+          <li>
+            <a href="gateway"> <i class="fa fa-bar-chart"></i><span>電錶資訊</span></a>
+          </li>
+          <div class="admin-menu">
+            <ul id="side-admin-menu" class="side-menu list-unstyled">
+              <li> <a href="#pages-nav-list" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cog"></i><span>裝置設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                <ul id="pages-nav-list" class="list-unstyled collapse" aria-expanded="false">
+                  <li> <a href="device"><i class="fa fa-lightbulb-o" aria-hidden="false"></i>燈控設定</a></li>
+                  <li> <a href="schedule"><i class="fa fa-clock-o" aria-hidden="false"></i>排程設定</a></li>
+                  <!--<li> <a href="festival_page">特別節日</a></li>-->
+                  <li> <a href="festival"><i class="fa fa-calendar" aria-hidden="false"></i>特別節日(日曆)</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="admin-menu">
+            <ul id="side-admin-menu" class="side-menu list-unstyled">
+              <li> <a href="#pages-nav-list-file" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cogs"></i><span>進階設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                <ul id="pages-nav-list-file" class="list-unstyled collapse " aria-expanded="false" style="">
+                  <li> <a href="files"><i class="fa fa-file" aria-hidden="false"></i>檔案匯入/匯出</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </ul>
+      </div>
+      <div class="admin-menu">
+
+      </div>
+    </div>
+  </nav>
+  <div class="page home-page">
+    <!-- navbar-->
+    <header class="header">
+      <nav class="navbar">
+        <div class="container-fluid">
+          <div class="navbar-holder d-flex align-items-center justify-content-between">
+            <div class="navbar-header"><a id="toggle-btn" href="#" class="menu-btn"><i class="fa fa-bars fa-2x" aria-hidden="true" style="vertical-align: middle;"></i></a>
+              <a href="index.html" class="navbar-brand">
+                <div class="brand-text hidden-sm-down"><span>電力小柴犬</span><strong class="text-primary">用電型態及數據視覺化呈現</strong></div>
+              </a>
+            </div>
+            <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+              <li class="nav-item"><a href="gateway_setting" class="nav-link pre-page">上一頁</i></a></li>
+              <li class="nav-item"><a href="/" class="nav-link logout">回到首頁<i class="fa fa-sign-out"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <section class="dashboard-counts section-padding" style="display:block  ;background-color: white; margin: -35px 0px 0px 0px;;padding:50px 0px 0px 50px;">
+      <div class="row" style="margin-top: 20px;">
+        <div class="col-xl-1 col-md-1 col-12">
+          <i class="fa fa-users" style="font-size: 3.5em;margin: 15px;" aria-hidden="true"></i><span style="margin-left: 25px;"></span>
+        </div>
+        <div class="col-xl-3 col-md-3 col-12">
+          <p> <strong class="text-uppercase" style="margin-top:5%;font-family: Microsoft JhengHei">本月用電</strong></p>
+
+          <div id="total" class="count-number text-primary"></div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-12">
+          <p> <strong class="text-uppercase" style="margin-top:5%;font-family: Microsoft JhengHei">同區域用戶的平均用電</strong></p>
+
+          <div id="avg_power" class="count-number text-primary"></div>
+        </div>
+        <div class="col-xl-3 col-md-3 col-12">
+          <p style="margin-top: 5%;" align="left"> <strong style="font-family: Microsoft JhengHei">相較比例</strong></p>
+          <div class="col-xl-12 col-12 " id="percent" style="height:280px;width:100%;padding:0;font-family: Microsoft JhengHei "></div>
+        </div>
+      </div>
+    </section>
+    <section cl<section class="forms">
+      <div class="container-fluid" style=" padding: 0 0 0 0px;">
+        <div class="col-lg-12" style="padding-right: 0px;padding-left: 0px; margin-bottom: 0px;">
+          <div class="card">
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item in ">
+                <a class="nav-link active" id="tab_house" href="#house" role="tab" data-toggle="tab" style="font-family: Microsoft JhengHei">住家</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="tab_store" href="#store" role="tab" data-toggle="tab" style="font-family: Microsoft JhengHei">餐廳/商家</a>
+              </li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane fade in active show" id="house">
+                <div class="card-block">
+                  <form class="form-inline">
+                    <div class="form-group  ">
+                      <span style="font-size: 20px;color: black">家庭人數:</span>
+                      <label for="inlineFormInput" class="sr-only">你的家庭人數</label>
+                      <input id="house_people" type="text" placeholder="你的家庭人數" onkeyup="return ValidateNumber($(this),value)" value="10" class="mx-sm-1 form-control">
+                    </div>
+                    <div class="form-group">
+                      <input type="button" style="cursor:pointer" value="估算" class="mx-sm-3 btn btn-primary" id="house_compute">
+                      <i class="fa fa-question-circle" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="請輸入你的家庭人數，將會為你計算每位家人一天平均用電量"></i>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="store">
+                <div class="card-block">
+
+                  <form class="form-inline">
+                    <div class="form-group" style="width: 20%;">
+                      <span style="font-size: 20px;color: black">員工人數:</span>
+                      <label for="inlineFormInput" class="sr-only">員工人數</label>
+                      <input id="number_staff" type="text" placeholder="員工人數" value=3 class="mx-sm-1 form-control" style="width: 40%;">
+                    </div>
+                    <div class="form-group" style="width: 20%;">
+                      <span style="font-size: 20px;color: black">工作時間(hr):</span>
+                      <label for="inlineFormInputGroup" class="sr-only">顧客人數</label>
+                      <input id="staff_time" type="text" placeholder="工作時間(hr)" value=6 class="mx-sm-1 form-control form-control" style="width: 40%;">
+                    </div>
+                    <div class="form-group" style="width: 20%;">
+                      <span style="font-size: 20px;color: black">顧客人數:</span>
+                      <label for="inlineFormInput" class="sr-only">顧客人數</label>
+                      <input id="number_client" type="text" placeholder="顧客人數" value=80 class="mx-sm-1 form-control" style="width: 40%;">
+                    </div>
+                    <div class="form-group" style="width: 20%;">
+                      <span style="font-size: 20px;color: black">停留時間(hr):</span>
+                      <label for="inlineFormInputGroup" class="sr-only">顧客人數</label>
+                      <input id="client_time" type="text" placeholder="停留時間(hr)" value=0.2 class="mx-sm-1 form-control form-control" style="width: 40%;">
+                    </div>
+                    <div class="form-group" style="width: 20%;">
+                      <input type="button" style="cursor:pointer" value="估算" class="mx-sm-3 btn btn-primary env_btn" id="store_compute">
+                      <i class="fa fa-question-circle" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="請輸入員工與顧客人數與一天待的時數，將會為你計算一天平均用電量"></i>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="dashboard-counts section-padding env_carbon" style="display:none; background-color: white;">
+      <div class="container-fluid">
+
+        <div class="row" style="margin-left: 0px">
+          <div id="house_text" class="col-12 col-md-9 col-lg-9 " style="box-shadow: 0px 0px 12px -2px rgba(20%,20%,40%,0.5);margin: 5px 100px 0px 100px;margin-bottom: 20px;font-size: 25px;font-family: Microsoft JhengHei">這個月內你的家人，每人每天平均用電<br><span style="font-size:30px" id="avg_people"></span></div>
+        </div>
+        <div class="row" style="margin-left: 0px;margin-bottom: 20px;" id="store_text">
+          <div class="col-5 col-md-4 col-lg-4 environment-text" style="    box-shadow: 0px 0px 12px -2px rgba(20%,20%,40%,0.5);margin:5px 7px 0px 120px;">這個月你的員工，每人每天平均用電<span style="font-size:30px" id="avg_staff"></span></div>
+          <div class="col-5 col-md-4 col-lg-4 environment-text" style="    box-shadow: 0px 0px 12px -2px rgba(20%,20%,40%,0.5);margin: 5px 7px 0px 120px;">顧客，每人每天平均用電<br><span style="font-size:30px" id="avg_client"></span></div>
+        </div>
+        <div class="row">
+          <div class="col-xl-1 col-md-1 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <strong style="font-weight:800;font-family: Microsoft JhengHei;font-size: 20px;text-align: center;"></strong>
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <img src="static/img/CC.png">
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <img src="static/img/lighttree.jpg">
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <img src="static/img/car.jpg">
+          </div>
+        </div>
+        <div class="row" id="family_data" style="display: none">
+          <div class="col-xl-1 col-md-1 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <strong style="font-weight:800;font-family: Microsoft JhengHei;font-size: 20px;text-align: center;">家人</strong>
+            <img src="static/img/family.png">
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 4px;font-family: Microsoft JhengHei" class="text-uppercase">碳排放量</strong>
+                <div id="co2_value_family" class="count-number text-primary" style="margin: 5px 4px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 12px;font-family: Microsoft JhengHei" class="text-uppercase">需要消耗多少棵樹?</strong>
+                <div id="tree_family" class="count-number text-primary" style="margin: 5px 12px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 30px;font-family: Microsoft JhengHei" class="text-uppercase">可以開多少里程數?</strong>
+                <div id="careco_family" class="count-number text-primary" style="margin: 5px 30px;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="row" id="staff_data" style="display: none">
+          <div class="col-xl-1 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <strong style="font-weight:800;font-family: Microsoft JhengHei;font-size: 20px;text-align: center;">員工</strong>
+            <img src="static/img/staff.png">
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 4px;font-family: Microsoft JhengHei" class="text-uppercase">碳排放量</strong>
+                <div id="co2_value_staff" class="count-number text-primary" style="margin: 5px 4px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 12px;font-family: Microsoft JhengHei" class="text-uppercase">需要消耗多少棵樹?</strong>
+                <div id="tree_staff" class="count-number text-primary" style="margin: 5px 12px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 30px;font-family: Microsoft JhengHei" class="text-uppercase">可以開多少里程數?</strong>
+                <div id="careco_staff" class="count-number text-primary" style="margin: 5px 30px;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="row" id="client_data" style="display: none">
+          <div class="col-xl-1 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+              </div>
+            </div>
+            <strong style="font-weight:800;font-family: Microsoft JhengHei;font-size: 20px;margin-top: 20px;text-align: center;">顧客</strong>
+            <img src="static/img/client.png">
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 4px;font-family: Microsoft JhengHei" class="text-uppercase">碳排放量</strong>
+                <div id="co2_value_client" class="count-number text-primary" style="margin: 5px 4px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 12px;font-family: Microsoft JhengHei" class="text-uppercase">需要消耗多少棵樹?</strong>
+                <div id="tree_client" class="count-number text-primary" style="margin: 5px 12px;"></div>
+              </div>
+            </div>
+
+          </div>
+          <div class="col-xl-3 col-md-3 col-12">
+            <div class="wrapper count-title d-flex">
+              <div class="name">
+                <strong style="margin: 5px 30px;font-family: Microsoft JhengHei" class="text-uppercase">可以開多少里程數?</strong>
+                <div id="careco_client" class="count-number text-primary" style="margin: 5px 30px;"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+
+      </div>
+    </section>
+    <footer class="main-footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6">
+            <!--<p>Your company &copy; 2017-2019</p>-->
+          </div>
+          <div class="col-sm-6 text-right">
+            <!--<p>Design by <a href="https://bootstrapious.com" class="external">Bootstrapious</a></p>-->
+            <!-- Please do not remove the backlink to us unless you support further theme's development at https://bootstrapious.com/donate. It is part of the license conditions. Thank you for understanding :)-->
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <div id="style-switch" class="collapse">
+    <h4 class="mb-3">Select theme colour</h4>
+    <form class="mb-3">
+      <select name="colour" id="colour" class="form-control">
+          <option value="">select colour variant</option>
+          <option value="default">green</option>
+          <option value="pink">pink</option>
+          <option value="red">red</option>
+          <option value="violet">violet</option>
+          <option value="sea">sea</option>
+          <option value="blue">blue</option>
+        </select>
+    </form>
+    <!--<p><img src="img/template-mac.png" alt="" class="img-fluid"></p>-->
+    <p class="text-muted text-small"> <small>Stylesheet switching is done via JavaScript and can cause a blink while page loads. This will not happen in your production code.</small></p>
+  </div>
+  <!-- Javascript files-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/tether.min.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.cookie.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/grasp_mobile_progress_circle-1.0.0.min.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.nicescroll.min.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.validate.min.js ') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/charts-home.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/front.js ') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/effect.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/lvami/electricity_check_call.js') }}"></script>
+
+  <!-- Google Analytics: change UA-XXXXX-X to be your site's ID.-->
+  <!---->
+  <script>
+    (function (b, o, i, l, e, r) {
+      b.GoogleAnalyticsObject = l;
+      b[l] || (b[l] =
+        function () {
+          (b[l].q = b[l].q || []).push(arguments)
+        });
+      b[l].l = +new Date;
+      e = o.createElement(i);
+      r = o.getElementsByTagName(i)[0];
+      e.src = '//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e, r)
+    }(window, document, 'script', 'ga'));
+    ga('create', 'UA-XXXXX-X');
+    ga('send', 'pageview');
+  </script>
+  <script>
+    session_user_name = $('#session_user_name').val();
+    var images = '/static/img/' + session_user_name + '.png';
+    $('#user_img').attr('src', images);
+  </script>
+</body>
+
+</html>

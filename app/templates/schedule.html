@@ -1,0 +1,288 @@
+{% extends "base.html" %} {% block head %}{{super()}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+<script src="{{ url_for('static', filename='js/dae/clientID.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dae/schedule.js') }}"></script>
+{% endblock head%} {% block content%}
+<nav class="side-navbar">
+    <div class="side-navbar-wrapper">
+        <div class="sidenav-header d-flex align-items-center justify-content-center">
+            <div class="sidenav-header-inner text-center"><img src="" alt="person" id="user_img" class="img-fluid rounded-circle">
+                <h2 class="h5 text-uppercase" id="{{gateway_uid}}">{{gateway_name}}</h2><span class="text-uppercase">Developer</span>
+                <input id="authority" value="{{authority}}" style="display:none">
+                <input id="session_user_name" value="{{session_user_name}}" style="display:none">
+            </div>
+            <div class="sidenav-header-logo">
+                <a href="/" class="brand-small text-center"> <strong>K</strong><strong class="text-primary">DD</strong></a>
+            </div>
+        </div>
+        <div class="main-menu">
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li>
+                    <a href="client_page"><i class="fa fa-line-chart"></i><span>我的即時用電資訊</span></a>
+                </li>
+                <li>
+                    <a href="client_tables"><i class="fa fa-check"></i><span>用電行為體檢</span></a>
+                </li>
+                <!--<li> <a href="client_forms"><i class="fa fa-thermometer-empty"></i><span>體感溫度與我的用電</span></a></li>-->
+                <!--<li> <a href="client_charts"><i class="icon-presentation"></i><span>我的用電情況</span></a></li>-->
+                <li>
+                    <!--<a href="client_power"><i class="icon-presentation"></i><span> 一週備轉容量</span></a>-->
+                </li>
+
+                <li>
+                    <a href="gateway"> <i class="fa fa-bar-chart"></i><span>電錶資訊</span></a>
+                </li>
+                <div class="admin-menu">
+                    <ul id="side-admin-menu" class="side-menu list-unstyled">
+                        <li> <a href="#pages-nav-list" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cog"></i><span>裝置設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                            <ul id="pages-nav-list" class="list-unstyled collapse" aria-expanded="false">
+                                <li> <a href="device"><i class="fa fa-lightbulb-o" aria-hidden="false"></i>燈控設定</a></li>
+                                <li class="active"> <a href="schedule"><i class="fa fa-clock-o" aria-hidden="false"></i>排程設定</a></li>
+                                <!--<li> <a href="festival_page">特別節日</a></li>-->
+                                <li> <a href="festival"><i class="fa fa-calendar" aria-hidden="false"></i>特別節日(日曆)</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="admin-menu">
+                    <ul id="side-admin-menu" class="side-menu list-unstyled">
+                        <li> <a href="#pages-nav-list-file" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cogs"></i><span>進階設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                            <ul id="pages-nav-list-file" class="list-unstyled collapse " aria-expanded="false" style="">
+                                <li> <a href="files"><i class="fa fa-file" aria-hidden="false"></i>檔案匯入/匯出</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="page home-page">
+    <!-- navbar-->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <div class="navbar-holder d-flex align-items-center justify-content-between">
+                    <div class="navbar-header"><a id="toggle-btn" href="#" class="menu-btn"><i class="fa fa-bars fa-2x" style="vertical-align: middle;"> </i></a>
+                        <a href="/" class="navbar-brand">
+                            <div class="brand-text hidden-sm-down"><span>電力資訊 </span><strong class="text-primary">用電數據視覺化</strong></div>
+                        </a>
+                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                        {% if role == 'Cloud' %}
+                        <li class="nav-item"><a href="gateway_setting" class="nav-link pre-page">上一頁</i></a></li>
+                        {%endif%}
+                        <li class="nav-item"><a href="/" class="nav-link logout">回到首頁<i class="fa fa-sign-out"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- Counts Section -->
+    <section class="dashboard-counts section-padding">
+        <div class="col-lg-12">
+            <h1 class="page-header">裝置設定</h1>
+        </div>
+        <div id="page-wrapper" calss="text-primary" style="padding: 1%">
+            <div class="card" style="border: 1px solid rgba(0,0,0,.125);">
+                <ol class="breadcrumb">
+                    <i class="fa fa-home"></i><a href="device" style="font-family: Microsoft JhengHei">裝置設定</a>>
+                    <a href="schedule" style="font-family: Microsoft JhengHei">排程設定</a>
+                </ol>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="control_time_event" id="" href="#control_time_today_state" role="tab" data-toggle="tab">控制時間</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#control_time_schedule" role="tab" data-toggle="tab">工作日/例假日</a>
+                    </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <!--控制時間分頁-->
+                    <div role="tabpanel" class="tab-pane fade in active show" id="control_time_today_state">
+                        <div><strong style="font-size: 20px;margin: 15px;font-weight: bold;">節日:</strong></div>
+                        <div class="col-lg-12 col-md-12">
+                            <table class="table table-bordered schedule_table">
+                                <thead class="tablerow_schedule_setting_list" style="background-color:lightblue;">
+                                    <tr>
+                                        <th>節日</th>
+                                        <th>今日時段</th>
+                                    </tr>
+                                </thead>
+                                <thead>
+                                    <tr>
+                                        <th class="festival_state "></th>
+                                        <th class="festival_bind"></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div><strong style="font-size: 20px;margin: 15px;font-weight: bold;">控制時間:</strong></div>
+                        <div class="col-lg-12 col-md-12">
+                            <table class="table table-bordered Control_time_table">
+                                <thead class="tablerow_Control_time" style="background-color:lightblue">
+                                    <tr>
+                                        <th>上次控制時間</th>
+                                        <th>下次控制時間</th>
+                                    </tr>
+                                </thead>
+                                </thead>
+                                <thead id="current_control_time">
+                                    <tr>
+                                        <th id="prev_control_time"></th>
+                                        <th id="next_control_time"></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                    <!--工作日/例假日的星期與控制時段-->
+                    <div role="tabpanel" class="tab-pane fade " id="control_time_schedule" style="margin:5px 5px 5px 5px ">
+                        <div class="card" style="margin-top:10px">
+                            <h3 class="card-header">控制時段</h3>
+                            <div class="card-block">
+                                <div class=" schedule_table weekday">
+                                    <div>工作日:</div>
+                                    <div id="control_time_group_list_weekday">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-block">
+                                <div class=" schedule_table holiday">
+                                    <div>例假日:</div>
+                                    <div id="control_time_group_list_holiday">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!--新增控制時段展開按鈕-->
+                        <button class="btn btn-primary" style="margin:15px" type="button" data-toggle="collapse" data-target="#new_control_time_table"
+                            aria-expanded="false" id="button_for_new_time" aria-controls="collapseExample">新增控制時段<i style="margin: 5px;"class="fa fa-angle-left"></i></button>
+
+                        <!--=新增控制時間填入表格-->
+                        <div class="collapse" id="new_control_time_table">
+                            <div class="card card-block">
+                                <div align="left">
+                                    <div style="margin:15px">
+                                        <div class="row">
+                                            <div class="col-sm-12 select"><span>新增時段時間表:</span>
+                                                <select name="bind_festival" id="festival" class="form-control">
+                                                    <option id="weekday">工作日</option>
+                                                    <option id="holiday">例假日</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-12">
+                                                <span>新增控制時段:</span></div>
+                                            <div class="col-6" id="control_time">
+                                                <div><input class="form-control-custom radio-custom" type="radio" name="control_time"
+                                                        id="control_time_sunrise" value="sunrise"><label for="control_time_sunrise">日出:</label></div>
+                                                <div><input class="form-control-custom radio-custom" type="radio" name="control_time"
+                                                        id="control_time_sunset" value="sunset"><label for="control_time_sunset">日落:</label></div>
+                                                <div><input class="form-control-custom radio-custom" type="radio" name="control_time"
+                                                        id="set_control_time" value="control_time"><label for="set_control_time">時間</label></div>
+                                                <div><input class="form-control " style="margin:5px;display:none" id="new_control_time"
+                                                        type="time" name="control_time" required="required"></div>
+                                            </div>
+                                            <div class="row" style="width: 100%;margin: 10px 10px 10px 10px ">
+                                                <table class="table table-bordered schedule">
+                                                    <thead class="table">
+                                                        <tr>
+                                                            <th>群組名稱</th>
+                                                            <th>群組狀態</th>
+                                                            <th>設定</th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-warning pull-right " onclick="new_schedule_insert(this)">新增</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--更新控制時間modal-->
+    <div class="modal fade" id="schedule_group_information_modal" data-target="#myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">群組狀態表</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin:10px">
+                        <div class="col-6" id="update_control_time_selection">
+                            <span>起始時間:</span>
+                            <div><input class="form-control-custom radio-custom" type="radio" name="update_control_time" id="update_control_time_sunrise"
+                                    value="sunrise">
+                                <label for="update_control_time_sunrise">日出:</label>
+                            </div>
+                            <div><input class="form-control-custom radio-custom" type="radio" name="update_control_time" id="update_control_time_sunset"
+                                    value="sunset">
+                                <label for="update_control_time_sunset">日落:</label>
+                            </div>
+                            <div><input class="form-control-custom radio-custom" type="radio" name="update_control_time" id="update_control_time"
+                                    value="update_control_time" required>
+                                <label for="update_control_time">時間</label>
+                            </div>
+                            <div>
+                                <input class="form-control  update_timepicker" id="update_control_time_insert" style="width:100%" type="time" name="update_control_time"
+                                    value="" required="required"></div>
+                        </div>
+                    </div>
+                    <!--update_schedule_group-->
+                    <div class="row" style="margin: 10px 10px 10px 10px ">
+                        <table class="table table-bordered schedule_time_table">
+                            <thead class="update_schedule_group_title">
+                                <tr>
+                                    <th>群組名稱</th>
+                                    <th>群組狀態</th>
+                                    <th>編輯</th>
+                                    <th>設定</th>
+                                </tr>
+                            </thead>
+
+                        </table>
+                    </div>
+                    <button class="btn btn-warning pull-right schedule_update" data-toggle="modal" onclick="update_schedule_insert(this)" data-target="#update_time_control_insert"
+                        value="" id="">更新</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        $('#control_time input:radio').click(function () {
+            control_time = $('#control_time input:radio:checked[name="control_time"]').val();
+            control_time_checked = $(this).prop("checked");
+            if (control_time == "control_time") {
+                $('#new_control_time').show();
+            } else {
+                $('#new_control_time').hide();
+            }
+        });
+        $('#update_control_time_selection input:radio').click(function () {
+            control_time = $('#update_control_time_selection input:radio:checked[name="update_control_time"]').val();
+            control_time_checked = $(this).prop("checked");
+            if (control_time == "update_control_time") {
+                $('#update_control_time_insert').show();
+            } else {
+                $('#update_control_time_insert').hide();
+            }
+        });
+    </script>
+    {% endblock content%}

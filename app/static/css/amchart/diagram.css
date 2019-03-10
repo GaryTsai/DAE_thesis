@@ -1,0 +1,246 @@
+#total_dia {
+  width: 100%;
+  height: 485px;
+}
+
+#total_and_body {
+  width: 100%;
+  height: 400px;
+}
+
+#powerbytemp {
+  height: 400px;
+  width: 100%;
+}
+
+#day_avg {
+  /*width: 75%;*/
+  width: 100%;
+  height: 250px;
+}
+
+#week_avg {
+  width: 100%;
+  height: 250px;
+}
+
+#column {
+  width: 100%;
+  height: 404px;
+}
+
+#tempature_correlation {
+  width: 100%;
+  height: 404px;
+}
+
+
+/*
+#chartdiv {
+  width: 100%;
+  height: 400px;
+}*/
+
+#chartdiv {
+  width: 100%;
+  height: 200px;
+}
+
+#information0 {
+  /*width: 100%;
+  width: 33.3%;*/
+  font-size: 60%;
+  height: 30px;
+}
+
+#percent {
+  height: 250px;
+  width: 100%;
+}
+
+#information1 {
+  /*width: 100%;
+  width: 33.3%;*/
+  font-size: 60%;
+  height: 30px;
+}
+
+#information2 {
+  /*width: 100%;
+  width: 33.3%;*/
+  /*font-size: 60%;*/
+  /*height: 30px;*/
+}
+
+#adminchartft {
+  height: 400px;
+  width: 100%;
+  /*margin-top: 50px;*/
+}
+
+#admincharttotal {
+  height: 400px;
+  width: 100%;
+  /*margin-top: 50px;*/
+}
+
+@media (max-width: 450px) {
+  section.dashboard-counts div[class*='col-xl-3 col-md-2 col-6'] {
+    margin-top: 80px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #chartdiv {
+    margin-top: 40px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #total_dia {
+    width: 100%;
+    height: 250px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #day_avg {
+    width: 100%;
+    height: 404px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #week_avg {
+    width: 100%;
+    height: 400px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #total_and_body {
+    width: 100%;
+    height: 400px;
+  }
+}
+
+
+/*@media screen and (max-width: 400px) {
+  .container-fluid.center {
+    text-align: center;
+  }
+}*/
+
+@media screen and (max-width: 400px) {
+  #information0 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #information0 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #information1 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  #information2 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 376px) {
+  #alarm_power_set {
+    text-align: center;
+    margin-right: 25%;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 317px) {
+  #alarm_power_set {
+    text-align: center;
+    width: 100%;
+    margin-right: 26%;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .row.d-flex.align-items-md-stretch .form-group.col-offset-2 {
+    text-align: center;
+    margin-left: 17%;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  #information0 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  #information1 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 300px) {
+  #information2 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  #information0 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  #information1 {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+  }
+}
+
+
+/*@media screen and (max-width: 320px) {
+  .col-lg-6.client_page {
+    padding: 0 0px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .col-lg-3.change_formobile {
+    padding: 0 0px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .col-lg-6.col-md-12.change_formobile {
+    padding: 0 0px;
+  }
+}*/

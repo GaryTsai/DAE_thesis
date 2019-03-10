@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name=”viewport” content=”width=device-width, initial-scale=1.0″>
+  <title>電力資訊-用電數據視覺化</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="all,follow">
+
+  <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+  <link href="{{ url_for('static', filename='css/style.default.css') }}" id="theme-stylesheet" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/grasp_mobile_progress_circle-1.0.0.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/amchart/amchart.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/amchart/diagram.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/dae/jquery-ui.css') }}" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+  <script src="https://use.fontawesome.com/99347ac47f.js"></script>
+  <script src="{{ url_for('static', filename='js/amchart/amcharts.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/amchart/serial.js') }}"></script>
+  <script src="https://www.amcharts.com/lib/3/gauge.js"></script>
+  <script src="{{ url_for('static', filename='js/amchart/light.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/lvami/diagram.js') }}"></script>
+
+  <link href="/static/sweetalert2/sweetalert2.css" rel="stylesheet">
+  <script src="/static/sweetalert2/sweetalert2.js"></script>
+  <script src="/static/sweetalert2/sweetalert2.common.js"></script>
+
+</head>
+
+<body>
+  <!-- Side Navbar -->
+  <nav class="side-navbar" style="overflow: hidden; outline: none;" tabindex="0">
+    <div class="side-navbar-wrapper">
+      <div class="sidenav-header d-flex align-items-center justify-content-center">
+        <div class="sidenav-header-inner text-center"><img src='' alt="person" id="user_img" class="img-fluid rounded-circle">
+          <h2 id="{{gateway_uid}}" class="h5 text-uppercase ">{{gateway_name}}</h2><span class="text-uppercase">用電資訊</span>
+          <input id="authority" value="{{authority}}" style="display:none">
+          <input id="session_user_name" value="{{session_user_name}}" style="display:none">
+        </div>
+        <div class="sidenav-header-logo">
+          <a href="client_page" class="brand-small text-center"> <strong>K</strong><strong class="text-primary">D</strong><strong class="text-primary">D</strong></a>
+        </div>
+      </div>
+
+      <div class="main-menu">
+        <ul id="side-main-menu" class="side-menu list-unstyled">
+          <li class="active">
+            <a href="client_page"><i class="fa fa-line-chart"></i><span>我的即時用電資訊</span></a>
+          </li>
+          <li>
+            <a href="client_tables"><i class="fa fa-check"></i><span>用電行為體檢</span></a>
+          </li>
+          <!--<li> <a href="client_forms"><i class="fa fa-thermometer-empty"></i><span>體感溫度與我的用電</span></a></li>-->
+          <!--<li> <a href="client_charts"><i class="icon-presentation"></i><span>我的用電情況</span></a></li>-->
+          <li>
+            <!--<a href="client_power"><i class="icon-presentation"></i><span> 一週備轉容量</span></a>-->
+          </li>
+
+          <li>
+            <a href="gateway"> <i class="fa fa-bar-chart"></i><span>電錶資訊</span></a>
+          </li>
+          <div class="admin-menu">
+            <ul id="side-admin-menu" class="side-menu list-unstyled">
+              <li> <a href="#pages-nav-list" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cog"></i><span>裝置設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                <ul id="pages-nav-list" class="list-unstyled collapse" aria-expanded="false">
+                  <li> <a href="device"><i class="fa fa-lightbulb-o" aria-hidden="false"></i>燈控設定</a></li>
+                  <li> <a href="schedule"><i class="fa fa-clock-o" aria-hidden="false"></i>排程設定</a></li>
+                  <!--<li> <a href="festival_page">特別節日</a></li>-->
+                  <li> <a href="festival"><i class="fa fa-calendar" aria-hidden="false"></i>特別節日(日曆)</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          <div class="admin-menu">
+            <ul id="side-admin-menu" class="side-menu list-unstyled">
+              <li> <a href="#pages-nav-list-file" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cogs"></i><span>進階設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                <ul id="pages-nav-list-file" class="list-unstyled collapse " aria-expanded="false" style="">
+                  <li> <a href="files"><i class="fa fa-file" aria-hidden="false"></i>檔案匯入/匯出</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </ul>
+      </div>
+      <div class="admin-menu">
+
+      </div>
+    </div>
+  </nav>
+  <div class="page home-page">
+    <!-- navbar-->
+    <header class="header">
+      <nav class="navbar">
+        <div class="container-fluid">
+          <div class="navbar-holder d-flex align-items-center justify-content-between">
+            <div class="navbar-header"><a id="toggle-btn" href="#" class="menu-btn"><i class="fa fa-bars fa-2x" aria-hidden="true" style="vertical-align: middle;"></i></a>
+              <a href="/" class="navbar-brand">
+                <div class="brand-text hidden-sm-down"><span>電力資訊</span><strong class="text-primary">用電數據視覺化</strong></div>
+
+              </a>
+
+            </div>
+            <div><input type="text" value="" id="power_information_time" class="btn "></div>
+            <div><button type="button" id="time_search" class="btn btn-primary">查詢</button></div>
+            <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+              <li class="nav-item"><a href="gateway_setting" class="nav-link pre-page">上一頁</i></a></li>
+              <li class="nav-item"><a href="/" class="nav-link logout">回到首頁<i class="fa fa-sign-out"></i></a></li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <section class="dashboard-header section-padding" style="margin-top: 2%;">
+      <div class="container-fluid">
+        <div class="row d-flex align-items-stretch " style="margin-top: 0px;">
+          <div class="col-lg-6  col-md-12 client_page">
+            <div class="wrapper income text-center">
+              <div class="name">
+                <div class="row">
+                  <div class="col-xl-6 col-6 text " style="font-size: 26px;">
+                    <strong class="text-uppercase" style="margin-top: 10px;font-family: Microsoft JhengHei;font-size: 20px;">即時用電</strong>
+                    <span style="font-size: 13px;color:gray">(過去一小時)</span><br>
+                    <div class="count-number text-primary" style="display: inline;" id="prev_power_now_ago"></div>
+                    <span id="information1"><span>
+                  </div>
+                  <div class="col-xl-6 col-6 text " style="font-size: 26px;">
+                    <strong  class="text-uppercase month_sum" style="margin-top: 10px;font-family: Microsoft JhengHei;font-size: 20px;">本月用電</strong>
+                    <br>
+                    <div class="count-number text-primary" style="display: inline;" id="max_power"></div>
+                    <span id="information2"><span>
+                  </div>
+                  <div id="total_dia">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-12 flex-lg-last flex-md-first align-self-baseline change_formobile">
+            <div class="wrapper project-progress">
+              <strong style="font-family: Microsoft JhengHei ;font-size: 20px;">一日用電分布</strong>
+              <div id="day_avg" style="margin-left: -12px;">
+              </div>
+              <strong style="font-family: Microsoft JhengHei;font-size: 20px;">一週用電分布</strong>
+              <div id="week_avg">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Header Section-->
+
+    <section class="dashboard-header section-padding" style="  margin-top: 20px;">
+      <div class="container-fluid">
+        <div class="row d-flex align-items-md-stretch">
+          <div class="col-lg-12 change_formobile">
+            <div class="wrapper sales-report">
+
+              <div class="container-fluid ">
+                <div class="row ">
+
+                  <div class="name col-3 col-md-3  ">
+                    <p align="left"> <strong style="color:black;font-family: Microsoft JhengHei">非時間電價(非營業用)</strong></p>
+                    <div id="bill6" class="count-number text-primary" style="font-size: 26px;"></div>
+                  </div>
+                  <div class="name col-3 col-md-3  ">
+                    <p align="left"> <strong style="color:black;font-family: Microsoft JhengHei">住商型簡易時間電價(二段式)</strong></p>
+                    <div id="bill5" class="count-number text-primary" style="font-size: 26px;"></div>
+                  </div>
+                  <div class="name col-3 col-md-3 ">
+                    <p align="left"> <strong style="color:black;font-family: Microsoft JhengHei">基礎用電</strong>
+                      <span style="font-family: Microsoft JhengHei">(每15分鐘) </span> </p>
+                    <div id="base_demand" class="count-number text-primary" style="font-size: 26px;"></div>
+                  </div>
+
+                  <div class="name col-3 col-md-3  ">
+                    <p align="left"> <strong style="color:black;font-family: Microsoft JhengHei" class="month_number">本月的基礎用電費用為</strong></p>
+                    <div id="base_of_expense" class="count-number text-primary" style="font-size: 26px;"></div>
+                  </div>
+                </div>
+                <div id="total_and_body">
+                </div>
+              </div>
+            </div>
+          </div>
+    </section>
+    <footer class="main-footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6">
+          </div>
+          <div class="col-sm-6 text-right">
+          </div>
+    </footer>
+    </div>
+    <!-- Javascript files-->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/tether.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.cookie.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/grasp_mobile_progress_circle-1.0.0.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.nicescroll.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.validate.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/front.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/effect.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/lvami/power_information_call.js') }}"></script>
+
+    <!---->
+    <script>
+      (function (b, o, i, l, e, r) {
+        b.GoogleAnalyticsObject = l;
+        b[l] || (b[l] =
+          function () {
+            (b[l].q = b[l].q || []).push(arguments)
+          });
+        b[l].l = +new Date;
+        e = o.createElement(i);
+        r = o.getElementsByTagName(i)[0];
+        e.src = '//www.google-analytics.com/analytics.js';
+        r.parentNode.insertBefore(e, r)
+      }(window, document, 'script', 'ga'));
+      ga('create', 'UA-XXXXX-X');
+      ga('send', 'pageview');
+    </script>
+    <script>
+      session_user_name = $('#session_user_name').val();
+      var images = '/static/img/' + session_user_name + '.png';
+      $('#user_img').attr('src', images);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+{% extends "base.html" %} {% block head %} {{super()}}
+<script src="{{ url_for('static', filename='js/dae/file.js') }}"></script>
+{% endblock head%} {% block content%}
+<nav class="side-navbar">
+    <div class="side-navbar-wrapper">
+        <div class="sidenav-header d-flex align-items-center justify-content-center">
+            <div class="sidenav-header-inner text-center"><img src='' alt="person" id="user_img" class="img-fluid rounded-circle">
+                <h2 class="h5 text-uppercase" id="{{gateway_uid}}">{{gateway_name}}</h2><span class="text-uppercase">Developer</span>
+                <input id="authority" value="{{authority}}" style="display:none">
+                <input id="session_user_name" value="{{session_user_name}}" style="display:none">
+            </div>
+            <div class="sidenav-header-logo">
+                <a href="/" class="brand-small text-center"> <strong>K</strong><strong class="text-primary">DD</strong></a>
+            </div>
+        </div>
+        <div class="main-menu">
+            <ul id="side-main-menu" class="side-menu list-unstyled">
+                <li>
+                    <a href="client_page"><i class="fa fa-line-chart"></i><span>我的即時用電資訊</span></a>
+                </li>
+                <li>
+                    <a href="client_tables"><i class="fa fa-check"></i><span>用電行為體檢</span></a>
+                </li>
+                <!--<li> <a href="client_forms"><i class="fa fa-thermometer-empty"></i><span>體感溫度與我的用電</span></a></li>-->
+                <!--<li> <a href="client_charts"><i class="icon-presentation"></i><span>我的用電情況</span></a></li>-->
+                <li>
+                    <!--<a href="client_power"><i class="icon-presentation"></i><span> 一週備轉容量</span></a>-->
+                </li>
+
+                <li>
+                    <a href="gateway"> <i class="fa fa-bar-chart"></i><span>電錶資訊</span></a>
+                </li>
+                <div class="admin-menu">
+                    <ul id="side-admin-menu" class="side-menu list-unstyled">
+                        <li> <a href="#pages-nav-list" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cog"></i><span>裝置設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                            <ul id="pages-nav-list" class="list-unstyled collapse" aria-expanded="false">
+                                <li> <a href="device"><i class="fa fa-lightbulb-o" aria-hidden="false"></i>燈控設定</a></li>
+                                <li> <a href="schedule"><i class="fa fa-clock-o" aria-hidden="false"></i>排程設定</a></li>
+                                <!--<li> <a href="festival_page">特別節日</a></li>-->
+                                <li> <a href="festival"><i class="fa fa-calendar" aria-hidden="false"></i>特別節日(日曆)</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="admin-menu">
+                    <ul id="side-admin-menu" class="side-menu list-unstyled">
+                        <li> <a href="#pages-nav-list-file" data-toggle="collapse" aria-expanded="false" class=""><i class="fa fa-cogs"></i><span>進階設定</span>
+                <div class="arrow pull-right"><i class="fa fa-angle-down"></i></div></a>
+                            <ul id="pages-nav-list-file" class="list-unstyled collapse " aria-expanded="false" style="">
+                                <li class="active"> <a href="files"><i class="fa fa-file" aria-hidden="false"></i>檔案匯入/匯出</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="page home-page">
+    <!-- navbar-->
+    <header class="header">
+        <nav class="navbar">
+            <div class="container-fluid">
+                <div class="navbar-holder d-flex align-items-center justify-content-between">
+                    <div class="navbar-header"><a id="toggle-btn" href="#" class="menu-btn"><i class="fa fa-bars fa-2x" style="vertical-align: middle;"> </i></a>
+                        <a href="/" class="navbar-brand">
+                            <div class="brand-text hidden-sm-down"><span>電力資訊 </span><strong class="text-primary">用電數據視覺化</strong></div>
+                        </a>
+                    </div>
+                    <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                        {% if role == 'Cloud' %}
+                        <li class="nav-item"><a href="gateway_setting" class="nav-link pre-page">上一頁</i></a></li>
+                        {%endif%}
+                        <li class="nav-item"><a href="/" class="nav-link logout">回到首頁<i class="fa fa-sign-out"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- Counts Section -->
+    <section class="dashboard-counts section-padding">
+        <div class="col-lg-12">
+            <h1 class="page-header">進階設定</h1>
+        </div>
+        <div id="page-wrapper" calss="text-primary" style="padding: 1%">
+
+            <div class="card">
+                <ol class="breadcrumb">
+                    <i class="fa fa-home"></i><a href="{{ url_for('main.files') }}" style="font-family: Microsoft JhengHei">進階設定</a>>
+                    <a href="files" style="font-family: Microsoft JhengHei">檔案匯入/匯出</a>
+                </ol>
+                <div class="card">
+                    <h1 class="card-header">匯入</h1>
+                    <div class="card-block row">
+                        <!-- COMPONENT START -->
+                        <div class="form-group">
+                            <div class="input-group " name="file">
+                                <input type="file" id="file_upload" accept=".json" class="form-control btn-choose" onchange="checkfile(this)" placeholder='請選擇檔案...'>
+                                <span class="input-group-btn"><button class="btn btn-warning btn-reset" onclick="file_upload()" type="button">上傳</button></span>
+                            </div>
+                        </div>
+                        <!-- COMPONENT END -->
+                    </div>
+                </div>
+                <div class="card">
+                    <h1 class="card-header">匯出</h1>
+                    <div class="card-block row" style="font-size: 25px">
+
+                        <div class="col-4"><strong style="font-size: 1.4rem; font-family: Microsoft JhengHei; ">電錶:</strong>
+                            <div><input class="form-control-custom form-check-label file_select" type="checkbox" name="file_select1"
+                                    id="meter_file" value="Setting">
+                                <label for="meter_file">電錶資訊</label>
+                            </div>
+                        </div>
+                        <div class="col-4"><strong style="font-size: 1.4rem; font-family: Microsoft JhengHei; ">燈控:</strong>
+                            <div><input class="form-control-custom form-check-label file_select" type="checkbox" name="file_select2"
+                                    id="node_file" value="Node">
+                                <label for="node_file">點位</label>
+                            </div>
+                            <div><input class="form-control-custom form-check-label file_select" type="checkbox" name="file_select3"
+                                    id="group_file" value="Group">
+                                <label for="group_file">群組</label>
+                            </div>
+                            <div><input class="form-control-custom form-check-label file_select" type="checkbox" name="file_select4"
+                                    id="scene_file" value="Scenes">
+                                <label for="scene_file">場景</label>
+                            </div>
+                        </div>
+                        <div class="col-4"><strong style="font-size: 1.4rem; font-family: Microsoft JhengHei; ">時段控制:</strong>
+                            <div><input class="form-control-custom form-check-label file_select" type="checkbox" name="file_select5"
+                                    id="schedule_file" value="Schedule">
+                                <label for="schedule_file">排程</label>
+                            </div>
+                            <div><input class="form-control-custom form-check-label file_select" type="checkbox" name="file_select6"
+                                    id="festival_file" value="festival">
+                                <label for="festival_file">特別節日</label>
+                            </div>
+
+                        </div>
+                        <a style="display: none" href="" id="FileExport"></a>
+                        <button class="btn btn-primary pull-right schedule_new_insert" onclick="fileExport()" id="file_export">匯出</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endblock content%}
